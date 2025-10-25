@@ -1,0 +1,126 @@
+
+## 環境構築
+
+
+使用想定
+ASP.NET Core
+My SQL
+Docker + WS
+
+
+コンテナ構成は
+L api
+L db
+L my_sql
+
+
+pj構成は
+
+pj-client : Unity 
+pj-server : ASP.NET Core + Docker + WSL => localhostでコンテナ立ち上げる
+pj-master : dbの出力先と入力を管理（csv）
+
+
+MessagePackを使用して csv => unity C#へ自動生成
+
+
+## 授業の目的
+
+クライアント、サーバー間のやり取りを理解する
+API、DataBaseを実際に実装しながら仕組みを理解する
+サーバー処理を意識したゲームの制作を体験する
+
+
+## 授業内容
+
+・環境構築して簡単なＡＰＩをたたく
+・UnityWebRequestを理解する
+・UnityTestRunnerでの単体テストとAPI疎通テスト
+・RequestとResponseを理解する（Get/Post通信, Header）
+・簡単なDBを作成する（アイテムマスタデータ）
+・DBを反映 => Unity C#への変換までの流れを体験（MessagePackを使用）
+・アイテムマスタデータからアイテム情報一覧を表示する画面を作成（ＭＶＰパターンの基礎を体験）
+・ユーザーデータとユーザテーブルを作成する
+・ログイン処理とユーザーデータの更新を理解する
+・アイテムを付与するデバックAPIを作成してみる
+・作成したＡＰＩを叩いてユーザーに付与する => ユーザーが所持しているアイテムを表示する
+
+・一通り基礎をおしえたら課題をしてもらう
+
+
+## 課題
+
+
+・ガチャ機能画面の制作
+ガチャ機能の仕様書を作成し、それに沿ったものを作成する
+最低限筐体テーブル、抽選テーブルを作成
+ボタン押したらガチャAPIをたたき、サーバー側で抽選処理　=> 結果をUnity上の画面に表示する
+
+
+
+## install 必要なもの
+
+.NET 8.0をダウンロード（このpjは.NET8.0.414）
+https://dotnet.microsoft.com/en-us/download/dotnet/8.0
+
+Docker Desktop（4.48.0）
+
+win
+https://docs.docker.com/desktop/setup/install/windows-install/#administrator-privileges-and-installation-requirements
+
+mac
+https://docs.docker.com/desktop/setup/install/mac-install/
+
+
+docker desktop 立ち上げる
+
+以下のコマンドたたく
+
+# WSL (Ubuntu)
+
+# ディレクトリに移動
+cd pj-server
+
+# pj-server フィル内にソリューションファイル作成
+dotnet new sln -n pj-server
+
+# ASP.NET Core WebApi アプリ
+dotnet new webapi -n Api
+
+# 追加されていないならプロジェクトファイル追加
+dotnet sln add Api/Api.csproj
+
+# ソリューションファイルに.csprojを追加する
+dotnet sln pj-server.sln add Api/Api.csproj
+
+=== ここまでは新規pj作成時 === 
+
+### 更新時
+
+# dotnet の再ビルド
+cd pj-server/Api
+dotnet clean
+Remove-Item -Recurse -Force bin,obj(一度ビルドしていたら)
+dotnet restore
+dotnet build
+
+# Docker ビルド(dotnet restore and dotnet buildも再度裏で行っている)
+cd ../../docker
+docker compose up -d --build 
+
+# Dockerを立ち上げる(立ち上げるのみ)
+cd ../../docker
+docker compose up -d 
+
+# コンテナ起動確認
+docker ps
+
+# コンテナ停止
+docker compose down
+
+# 接続確認
+コマンドで接続するか、ブラウザでリンクを開く
+curl http://localhost:8080/health
+
+Swaggerでブラウザ上でテストする際
+http://localhost:8080/swagger
